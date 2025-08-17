@@ -1,0 +1,7 @@
+services:
+  port-checker:
+    build: .
+    container_name: port-checker
+    restart: always
+    env_file:
+      - .env
