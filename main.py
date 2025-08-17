@@ -11,14 +11,15 @@ print = lambda *args, **kwargs: __builtins__.print(*args, **{**kwargs, "flush": 
 
 load_dotenv()
 
-
-ip = os.getenv("IP")
+monitor_ip = os.getenv("MONITOR_IP")
 ports = [int(p.strip()) for p in os.getenv("PORTS", "").split(",") if p.strip()]
+
+ssh_host = os.getenv("SSH_HOST")
 ssh_user = os.getenv("SSH_USER")
 ssh_pass = os.getenv("SSH_PASS")
-ssh_host = ip
 ssh_port = int(os.getenv("SSH_PORT", 22))
-interval = int(os.getenv("INTERVAL", 60))  
+
+interval = int(os.getenv("INTERVAL", 60))
 
 
 def log(msg):
@@ -62,17 +63,17 @@ def main():
     while True:
         closed_ports = []
         for port in ports:
-            if check_port(ip, port):
-                log(f"Port {port} is OPEN")
+            if check_port(monitor_ip, port):
+                log(f"Port {port} on {monitor_ip} is OPEN")
             else:
-                log(f"Port {port} is CLOSED")
+                log(f"Port {port} on {monitor_ip} is CLOSED")
                 closed_ports.append(port)
 
         if closed_ports:
             log(f"[!] Closed ports detected: {closed_ports}")
             reload_supervisor(ssh_host, ssh_port, ssh_user, ssh_pass)
         else:
-            log("[✓] All ports are open.")
+            log(f"[✓] All monitored ports on {monitor_ip} are open.")
 
         log(f"Sleeping for {interval} seconds...\n")
         time.sleep(interval)
